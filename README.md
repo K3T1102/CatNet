@@ -1,6 +1,6 @@
 # CatNet
 
-![GitHub stars](https://img.shields.io/github/stars/K3T1102/CatNet?style=for-the-badge&logo=github) ![GitHub forks](https://img.shields.io/github/forks/K3T1102/CatNet?style=for-the-badge&logo=github) ![GitHub issues](https://img.shields.io/github/issues/K3T1102/CatNet?style=for-the-badge&logo=github) ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![GitHub stars](https://img.shields.io/github/stars/K3T1102/CatNet?style=for-the-badge&logo=github) ![GitHub forks](https://img.shields.io/github/forks/K3T1102/CatNet?style=for-the-badge&logo=github) ![GitHub issues](https://img.shields.io/github/issues/K3T1102/CatNet?style=for-the-badge&logo=github) ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white) ![C++](https://img.shields.io/badge/C%2B%2B-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white)
 
 ## 📑 Table of Contents
 
