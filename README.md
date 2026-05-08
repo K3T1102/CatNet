@@ -41,6 +41,12 @@ flask db migrate -m "migration"
 flask db upgrade
 ```
 
+# Start Server
+
+```
+flask --app app run --host 0.0.0.0 --port 5000
+```
+
 ## 📦 Key Dependencies
 
 ```
