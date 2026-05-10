@@ -15,7 +15,7 @@
 
 ## 📝 Description
 
-CatNet is a versatile Python-based networking platform specifically designed for feline enthusiasts and pet owners. This project provides a robust framework for managing feline-related data, facilitating community interaction, and organizing cat-centric content. Leveraging the power and simplicity of Python, CatNet offers an intuitive interface for users to connect over shared interests in cat health, behavior, and welfare, creating a digital hub for all things feline.
+CatNet is a simple C2 framework built with Flask and SQLAlchemy. It allows you to manage infected machines (cats) and send commands to them. On the client side, there's the agent.exe file which installs service.exe as a Windows service.
 
 ## 🛠️ Tech Stack
 
